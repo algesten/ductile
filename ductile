@@ -49,7 +49,7 @@ yargs = require('yargs').usage('\nUsage: ductile <command> [options] <url>')
         body = readfile(argv.q) if argv.q
         trans = if argv.t then readfile(argv.t) else (v) -> v
         lsearch = {body}
-        require('./src/ductile')(argv.url)
+        require('./lib/ductile')(argv.url)
         .reader(lsearch, odelete, trans)
         .on 'progress', (p) ->
             console.error "Exported #{p.from}/#{p.total}"
@@ -84,7 +84,7 @@ yargs = require('yargs').usage('\nUsage: ductile <command> [options] <url>')
     handler: (argv) ->
         odelete = argv["delete"]
         trans = if argv.t then readfile(argv.t) else (v) -> v
-        require('./src/ductile')(argv.url)
+        require('./lib/ductile')(argv.url)
         .writer(odelete, trans, process.stdin)
         .on 'progress', (p) ->
             console.error "Imported #{p.count}"
