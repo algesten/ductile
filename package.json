@@ -1,6 +1,6 @@
 {
   "name": "ductile",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Elasticsearch Bulk Loader",
   "main": "lib/ductile.js",
   "repository": {
