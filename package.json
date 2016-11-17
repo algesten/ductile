@@ -24,7 +24,10 @@
     "through2": "^2.0.1",
     "yargs": "^6.4.0"
   },
-  "devDependencies": {
-    "uglify-js": "^2.7.4"
-  }
+  "keywords": [
+    "elasticsearch",
+    "bulk",
+    "import",
+    "export"
+  ]
 }
