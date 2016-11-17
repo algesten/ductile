@@ -7,6 +7,9 @@
     "type": "git",
     "url": "github.com/algesten/ductile"
   },
+  "scripts": {
+    "prepublish": "rm -rf lib && coffee -m -c -o lib src"
+  },
   "bin": {
     "ductile": "ductile"
   },
@@ -20,5 +23,8 @@
     "elasticsearch-streams": "0.0.9",
     "through2": "^2.0.1",
     "yargs": "^6.4.0"
+  },
+  "devDependencies": {
+    "uglify-js": "^2.7.4"
   }
 }
