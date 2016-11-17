@@ -14,7 +14,7 @@
     "ductile": "ductile"
   },
   "author": "Martin Algesten <martin@algesten.se>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "bog": "^1.0.2",
     "byline": "^5.0.0",

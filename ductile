@@ -53,6 +53,8 @@ yargs = require('yargs').usage('\nUsage: ductile <command> [options] <url>')
         .reader(lsearch, odelete, trans)
         .on 'progress', (p) ->
             console.error "Exported #{p.from}/#{p.total}"
+        .on 'error', (err) ->
+            console.error 'EXPORT ERROR:', err.message
         .pipe(process.stdout)
         .on 'error', (err) ->
             if err.code == 'EPIPE'

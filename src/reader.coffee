@@ -47,6 +47,8 @@ module.exports = (client, _opts, operdelete, trans) ->
                     callback(err, res)
 
     readable = new ReadableSearch scrollExec
+    .on 'error', (err) ->
+        stream.emit 'error', err
 
     last = -1
 
