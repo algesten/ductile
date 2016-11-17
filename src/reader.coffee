@@ -2,16 +2,27 @@
 through2 = require 'through2'
 mixin    = require './mixin'
 
-toBulk = -> through2.obj (doc, enc, callback) ->
-    this.push index:{_index: doc._index, _type:doc._type, _id:doc._id}
-    this.push doc._source
+toBulk = (operdelete) -> through2.obj (doc, enc, callback) ->
+    idx = {_index: doc._index, _type:doc._type, _id:doc._id}
+    if operdelete
+        this.push delete:idx
+    else
+        this.push index:idx
+        this.push doc._source
+    callback()
+
+transform = (fn) -> through2.obj (doc, enc, callback) ->
+    tdoc = fn(doc)
+    if tdoc
+        this.push tdoc
     callback()
 
 jsonStream = -> through2.obj (chunk, enc, callback) ->
     this.push(JSON.stringify(chunk) + "\n")
     callback()
 
-module.exports = (client, _opts) ->
+
+module.exports = (client, _opts, operdelete, trans) ->
 
     opts = mixin _opts, {scroll:'60s'}
 
@@ -35,4 +46,7 @@ module.exports = (client, _opts) ->
                     scrollId = res?._scroll_id
                     callback(err, res)
 
-    (new ReadableSearch(scrollExec)).pipe(toBulk()).pipe(jsonStream())
+    (new ReadableSearch scrollExec)
+    .pipe transform(trans)
+    .pipe toBulk(operdelete)
+    .pipe jsonStream()

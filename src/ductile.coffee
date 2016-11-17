@@ -23,8 +23,13 @@ module.exports = (url, apiVersion) ->
     # holds {q, from, size, sort}
     search = queryToSearch(target.query)
 
-    reader: (args) ->
-        indextype = {index:target.index, type:target.type}
-        reader(client, mixin(search, args, indextype))
+    reader: (lsearch, operdelete, trans) ->
+
+        # merged search in order of precedence
+        msearch = mixin search, lsearch, {index:target.index, type:target.type}
+
+        reader(client, msearch, operdelete, trans)
+
     writer: () ->
+
         writer(client, target)

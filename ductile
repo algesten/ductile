@@ -1,1 +1,81 @@
 #!/usr/bin/env ./node_modules/.bin/coffee
+
+{join} = require 'path'
+log  = require 'bog'
+
+log.redirect console.error, console.error
+log.level 'warn'
+
+readfile = (f) ->
+    path = join(process.cwd(), f)
+    try
+        require(path)
+    catch ex
+        if ex.code == 'MODULE_NOT_FOUND'
+            console.error "File not found: #{path}"
+            process.exit -1
+        else
+            throw ex
+
+yargs = require('yargs').usage('\nUsage: ductile <command> [options] <url>')
+
+.strict()
+.wrap(null)
+
+.command
+    command: 'export [options] <url>'
+    aliase:  'e'
+    desc:    'Bulk export items',
+    builder: (yargs) ->
+        yargs
+        .strict()
+        .usage('\nUsage: ductile export [options] <url>')
+        .option 'd',
+            alias:    'delete'
+            default:  false
+            describe: 'output delete operations'
+            type:     'boolean'
+        .option 'q',
+            alias:    'query'
+            describe: 'file with json query'
+            type:     'string'
+        .option 't',
+            alias:    'transform'
+            describe: 'file with transform function'
+            type:     'string'
+        .demand(1)
+    handler: (argv) ->
+        odelete = argv["delete"]
+        body = readfile(argv.q) if argv.q
+        trans = if argv.t then readfile(argv.t) else (v) -> v
+        lsearch = {body}
+        require('./src/ductile')(argv.url).reader(lsearch, odelete, trans).pipe(process.stdout)
+
+.command
+    command: 'import [options] <url>'
+    aliase:  'i'
+    desc:    'Bulk import items',
+    builder: (yargs) ->
+        yargs
+        .strict()
+        .usage('\nUsage: ductile import [options] <url>')
+        .option('d',
+            alias:    'delete'
+            default:  false
+            describe: 'change incoming index operations to delete'
+            type:     'boolean'
+        )
+        .demand(1, 'url')
+    handler: (argv) ->
+        console.log 'import', argv
+
+.example 'ductile export http://localhost:9200/myindex'
+.example 'ductile export http://localhost:9200/myindex/mytype > dump.bulk'
+.example 'ductile import http://localhost:9200/myindex/mytype < dump.bulk'
+.help()
+.showHelpOnFail()
+
+argv = yargs.argv
+
+unless argv._.length
+    yargs.showHelp()
