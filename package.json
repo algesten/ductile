@@ -7,9 +7,6 @@
     "type": "git",
     "url": "github.com/algesten/ductile"
   },
-  "scripts": {
-    "prepublish": "rm -rf lib && coffee -m -c -o lib src"
-  },
   "bin": {
     "ductile": "ductile"
   },
