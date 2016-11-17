@@ -119,11 +119,12 @@ The input to the function is a hit as produced by elasticsearch.
 Any part of the input can be changd.
 
 ```json
-{ _index: 'myindex',
-  _type: 'mytype',
-  _id: 'sdltb459b78',
-  _score: 1,
-  _source: { the doc }
+{
+  "_index": "myindex",
+  "_type": "mytype",
+  "_id": "sdltb459b78",
+  "_score": 1,
+  "_source": {  }
 }
 ```
 
@@ -178,12 +179,13 @@ Worth noting is the non-elasticsearch-standard `_oper` field that
 will hold one of `index`, `create`, `delete` or `update`.
 
 ```json
-{ _index: 'myindex',
-  _type: 'mytype',
-  _id: 'sdltb459b78',
-  _score: 1,
-  _oper: 'index',
-  _source: { the doc }
+{
+  "_index": "myindex",
+  "_type": "mytype",
+  "_id": "sdltb459b78",
+  "_score": 1,
+  "_oper": "index",
+  "_source": {  }
 }
 ```
 
