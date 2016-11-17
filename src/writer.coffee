@@ -66,9 +66,19 @@ module.exports = (client, _opts, operdelete, trans, instream) ->
             else
                 callback null, res
 
-    instream
+    count = 0
+
+    stream = instream
     .pipe byline.createStream() # ensure we get whole lines
     .pipe fromJson()
     .pipe toDoc()
+    .pipe through2.obj (doc, enc, callback) ->
+        count++
+        this.push doc
+        callback()
     .pipe transform(operdelete, trans, _opts.index, _opts.type)
-    .pipe new WritableBulk(bulkExec)
+    .pipe new WritableBulk (bulk, callback) ->
+        stream.emit 'progress', {count}
+        bulkExec(bulk, callback)
+
+    stream

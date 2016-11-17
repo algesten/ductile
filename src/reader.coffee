@@ -46,7 +46,21 @@ module.exports = (client, _opts, operdelete, trans) ->
                     scrollId = res?._scroll_id
                     callback(err, res)
 
-    (new ReadableSearch scrollExec)
+    readable = new ReadableSearch scrollExec
+
+    last = -1
+
+    stream = readable
     .pipe transform(trans)
+    .pipe through2.obj (hit, enc, callback) ->
+        this.push hit
+        if readable.from != last
+            last = readable.from
+            stream.emit 'progress', {from:last, total:readable.total}
+        callback()
     .pipe toBulk(operdelete)
     .pipe jsonStream()
+    .on 'end', ->
+        stream.emit 'progress', {from:readable.total, total:readable.total}
+
+    stream
