@@ -50,6 +50,12 @@ yargs = require('yargs').usage('\nUsage: ductile <command> [options] <url>')
         trans = if argv.t then readfile(argv.t) else (v) -> v
         lsearch = {body}
         require('./src/ductile')(argv.url).reader(lsearch, odelete, trans).pipe(process.stdout)
+        .on 'error', (err) ->
+            if err.code == 'EPIPE'
+                # broken pipe
+                process.exit -1
+            else
+                console.error 'EXPORT ERROR:', err
 
 .command
     command: 'import [options] <url>'
@@ -58,16 +64,25 @@ yargs = require('yargs').usage('\nUsage: ductile <command> [options] <url>')
     builder: (yargs) ->
         yargs
         .strict()
-        .usage('\nUsage: ductile import [options] <url>')
-        .option('d',
+        .usage '\nUsage: ductile import [options] <url>'
+        .option 'd',
             alias:    'delete'
             default:  false
             describe: 'change incoming index operations to delete'
             type:     'boolean'
-        )
-        .demand(1, 'url')
+        .option 't',
+            alias:    'transform'
+            describe: 'file with transform function'
+            type:     'string'
+        .demand(1)
     handler: (argv) ->
-        console.log 'import', argv
+        odelete = argv["delete"]
+        trans = if argv.t then readfile(argv.t) else (v) -> v
+        require('./src/ductile')(argv.url).writer(odelete, trans, process.stdin)
+        .on 'error', (err) ->
+            console.error 'IMPORT ERROR:', err.message
+            process.exit -1
+
 
 .example 'ductile export http://localhost:9200/myindex'
 .example 'ductile export http://localhost:9200/myindex/mytype > dump.bulk'

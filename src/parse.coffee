@@ -27,7 +27,7 @@ module.exports = (u) ->
 
     {
         server
-        index: index ? ''
-        type:  type ? ''
+        index: if index then index else null
+        type:  if type  then type  else null
         query: query ? ''
     }

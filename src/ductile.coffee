@@ -30,6 +30,6 @@ module.exports = (url, apiVersion) ->
 
         reader(client, msearch, operdelete, trans)
 
-    writer: () ->
+    writer: (operdelete, trans, instream) ->
 
-        writer(client, target)
+        writer(client, {index:target.index, type:target.type}, operdelete, trans, instream)
