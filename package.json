@@ -5,8 +5,12 @@
   "main": "lib/ductile.js",
   "repository": {
     "type": "git",
-    "url": "github.com/algesten/ductile"
+    "url": "github.com/algesten/ductile.git"
   },
+  "bugs": {
+    "url": "https://github.com/algesten/ductile/issues"
+  },
+  "homepage": "https://github.com/algesten/ductile",
   "scripts": {
     "prepublish": "rm -rf lib && coffee -m -c -o lib src"
   },
