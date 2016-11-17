@@ -1,13 +1,13 @@
 #!/usr/bin/env ./node_modules/.bin/coffee
 
-{join} = require 'path'
+{join, sep} = require 'path'
 log  = require 'bog'
 
 log.redirect console.error, console.error
 log.level 'warn'
 
 readfile = (f) ->
-    path = join(process.cwd(), f)
+    path = if f[0] == sep then f else join(process.cwd(), f)
     try
         require(path)
     catch ex
