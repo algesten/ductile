@@ -20,7 +20,7 @@ module.exports = (url, apiVersion) ->
 
     client = new elasticsearch.Client(opts)
 
-    # holds {q, from, size, sort}
+    # holds {q}
     search = queryToSearch(target.query)
 
     reader: (lsearch, operdelete, trans) ->

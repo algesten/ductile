@@ -17,7 +17,4 @@ module.exports = (str) ->
 
     {
         q: p.q ? ''
-        from: asInt(p.from) ? 0
-        size: asInt(p.size) ? 10
-        sort: p.sort ? ''
     }
