@@ -1,0 +1,26 @@
+{
+  "name": "ductile",
+  "version": "1.0.0",
+  "description": "Elasticsearch Bulk Loader",
+  "main": "lib/ductile.js",
+  "repository": {
+    "type": "git",
+    "url": "github.com/algesten/ductile"
+  },
+  "scripts": {
+    "prepublish": "rm -rf lib && coffee -m -c -o lib src"
+  },
+  "bin": {
+    "ductile": "ductile"
+  },
+  "author": "Martin Algesten <martin@algesten.se>",
+  "license": "ISC",
+  "dependencies": {
+    "bog": "^1.0.2",
+    "coffee-script": "^1.11.1",
+    "elasticsearch": "^12.0.1",
+    "elasticsearch-streams": "0.0.9",
+    "through2": "^2.0.1",
+    "yargs": "^6.4.0"
+  }
+}
