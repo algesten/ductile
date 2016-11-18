@@ -15,7 +15,6 @@ describe 'export', ->
         mock.stopAll()
 
     describe 'with no options', ->
-
         it 'exports to bulk', ->
             cmd ['export', 'http://localhost:9200/myindex']
             streams.promise(stdout)
@@ -52,6 +51,16 @@ describe 'export', ->
             streams.promise(stdout).then ->
                 assert.deepEqual es().search.args[0][0],
                     body:query:match_all:{}
+                    index: 'panda'
+                    type: 'cub'
+                    scroll: '60s'
+
+    describe 'with a q= in the url', ->
+        it 'includes q field in the body', ->
+            cmd ['export', 'http://localhost:9200/panda/cub?q=published:true']
+            streams.promise(stdout).then ->
+                assert.deepEqual es().search.args[0][0],
+                    q: 'published:true'
                     index: 'panda'
                     type: 'cub'
                     scroll: '60s'
