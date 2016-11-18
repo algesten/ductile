@@ -67,7 +67,6 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
                 outerr "Exported #{p.from}/#{p.total}"
             .on 'error', (err) ->
                 outerr 'EXPORT ERROR:', err.message
-                stderr.end()
             .pipe(stdout)
             .on 'error', (err) ->
                 if err.code == 'EPIPE'
