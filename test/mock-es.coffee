@@ -33,8 +33,10 @@ search = spy (opts, cb) -> reset(); setImmediate ->
     cb null, {_scroll_id:'123', hits:{total:N, hits:iter()}}
 scroll = spy (opts, cb) -> setImmediate ->
     cb null, {_scroll_id:'123', hits:{total:N, hits:iter()}}
+bulk = spy (opts, cb) -> setImmediate ->
+    cb null, {}
 
-fn = -> {search, scroll}
+fn = -> {search, scroll, bulk}
 fn.docs = -> clone docs
 
 module.exports = fn

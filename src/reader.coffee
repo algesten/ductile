@@ -53,13 +53,13 @@ module.exports = (client, _opts, operdelete, trans) ->
     last = -1
 
     stream = readable
-    .pipe transform(trans)
     .pipe through2.obj (hit, enc, callback) ->
         this.push hit
         if readable.from != last
             last = readable.from
             stream.emit 'progress', {from:last, total:readable.total}
         callback()
+    .pipe transform(trans)
     .pipe toBulk(operdelete)
     .pipe jsonStream()
     .on 'end', ->

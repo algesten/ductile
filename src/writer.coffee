@@ -38,13 +38,13 @@ toDoc = ->
 
 transform = (operdelete, trans, index, type) ->
     through2.obj (row, enc, callback) ->
-        t = trans(row)
-        t._oper = 'delete' if operdelete
-        oper = {}
-        oper[t._oper] = {_id:t._id, _index:(index ? t._index), _type:(type ? t._type)}
-        this.push oper
-        if t._oper in ['index', 'create']
-            this.push t._source
+        if t = trans(row)
+            t._oper = 'delete' if operdelete
+            oper = {}
+            oper[t._oper] = {_id:t._id, _index:(index ? t._index), _type:(type ? t._type)}
+            this.push oper
+            if t._oper in ['index', 'create']
+                this.push t._source
         callback()
 
 module.exports = (client, _opts, operdelete, trans, instream) ->

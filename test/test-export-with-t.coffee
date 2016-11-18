@@ -5,6 +5,7 @@ describe 'export', ->
     es = stdin = stdout = stderr = cmd = null
 
     beforeEach ->
+        decache './trans.js'
         {es} = require('./mock-all')()
         stdin  = streams.empty()
         stdout = streams.output()
@@ -35,3 +36,7 @@ describe 'export', ->
                     ]).map (r) -> JSON.stringify(r)
                     .join('\n') + '\n'
                     assert.deepEqual bulk, cmp
+                .then ->
+                    assert.deepEqual streams.string(stderr),
+                    'Exported 10/42\nExported 20/42\nExported 30/42\n' +
+                    'Exported 40/42\nExported 42/42\n'
