@@ -25,6 +25,17 @@ Options:
   -t, --transform  file with transform function  [string]
 ```
 
+#### Export with Index/Type in the URL
+
+The data to export is narrow by specifying the index, and optionally
+the type in the URL.
+
+#### Alias
+
+The exported bulk items always retain their original index name even
+if exported using an index alias in the URL. To alter the index (or
+type, you must use a transform.
+
 ### Import
 
 ```bash
@@ -37,6 +48,11 @@ Options:
   -d, --delete     change incoming index operations to delete  [boolean] [default: false]
   -t, --transform  file with transform function  [string]
 ```
+
+#### Import with Index/Type in the URL
+
+When importing, an index or alias in the URL will override that in the
+bulk data.
 
 ## Examples
 
