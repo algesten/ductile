@@ -1,24 +1,14 @@
-elasticsearch = require 'elasticsearch'
-ElasticLogger = require './elastic-logger'
 parse         = require './parse'
 mixin         = require './mixin'
 reader        = require './reader'
 writer        = require './writer'
 queryToSearch = require './query-to-search'
 
-module.exports = (url, apiVersion) ->
+module.exports = (url) ->
 
     target = parse(url)
 
-    opts =
-        host           : target.server
-        log            : ElasticLogger
-        requestTimeout : 60000
-        deadTimeout    : 90000
-
-    opts.apiVersion = apiVersion if apiVersion
-
-    client = new elasticsearch.Client(opts)
+    client = require('./es') target
 
     # holds {q}
     search = queryToSearch(target.query)

@@ -63,6 +63,7 @@ module.exports = (client, _opts, operdelete, trans) ->
     .pipe toBulk(operdelete)
     .pipe jsonStream()
     .on 'end', ->
-        stream.emit 'progress', {from:readable.total, total:readable.total}
+        if readable.from != last
+            stream.emit 'progress', {from:readable.total, total:readable.total}
 
     stream

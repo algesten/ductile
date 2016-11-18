@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
-var path = require('path');
-var fs   = require('fs');
-var root  = path.dirname(fs.realpathSync(__filename));
+var path = require('path')
+var fs   = require('fs')
+var root  = path.dirname(fs.realpathSync(__filename))
 
-require(root + '/lib/cmd')
+argv = process.argv.slice(2)
+require(root + '/lib/cmd')(process.stdin, process.stdout, process.stderr)(argv)

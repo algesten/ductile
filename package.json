@@ -33,5 +33,15 @@
     "bulk",
     "import",
     "export"
-  ]
+  ],
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chance": "^1.0.4",
+    "decache": "^4.1.0",
+    "mocha": "^3.1.2",
+    "mock-require": "^2.0.0",
+    "sinon": "^1.17.6",
+    "sinon-chai": "^2.8.0",
+    "stream-buffers": "^3.0.1"
+  }
 }
