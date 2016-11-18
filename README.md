@@ -54,6 +54,19 @@ Options:
 When importing, an index or alias in the URL will override that in the
 bulk data.
 
+### Alias
+
+Exports (non standard) alias bulk operations.
+
+```bash
+$ ./ductile alias --help
+
+ Usage: ductile alias <url>
+
+Options:
+  --help  Show help  [boolean]
+```
+
 ## Examples
 
 This tools works with stdin/stdout.
@@ -203,6 +216,12 @@ will hold one of `index`, `create`, `delete` or `update`.
   "_oper": "index",
   "_source": {  }
 }
+```
+
+## Alias
+
+```bash
+$ ./ductile alias http://elast01:9200/dist-sdl | $ ./ductile import http://elast02:9200/dist-sdl
 ```
 
 

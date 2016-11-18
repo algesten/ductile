@@ -1,6 +1,7 @@
 parse         = require './parse'
 mixin         = require './mixin'
 reader        = require './reader'
+alias         = require './alias'
 writer        = require './writer'
 queryToSearch = require './query-to-search'
 
@@ -19,6 +20,10 @@ module.exports = (url) ->
         msearch = mixin search, lsearch, {index:target.index, type:target.type}
 
         reader(client, msearch, operdelete, trans)
+
+    alias: ->
+
+        alias(client, {index:target.index})
 
     writer: (operdelete, trans, instream) ->
 

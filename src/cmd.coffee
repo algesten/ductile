@@ -105,6 +105,29 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
                 process.exit -1
 
 
+    .command
+        command: 'alias <url>'
+        aliase:  'a'
+        desc:    'Bulk export aliases',
+        builder: (yargs) ->
+            yargs
+            .strict()
+            .usage('\nUsage: ductile alias <url>')
+            .demand(1)
+        handler: (argv) ->
+            ductile(argv.url)
+            .alias()
+            .on 'error', (err) ->
+                outerr 'EXPORT ERROR:', err.message
+            .pipe(stdout)
+            .on 'error', (err) ->
+                if err.code == 'EPIPE'
+                    # broken pipe
+                    process.exit -1
+                else
+                    outerr 'EXPORT ERROR:', err
+
+
     .example 'ductile export http://localhost:9200/myindex'
     .example 'ductile export http://localhost:9200/myindex/mytype > dump.bulk'
     .example 'ductile import http://localhost:9200/myindex/mytype < dump.bulk'
