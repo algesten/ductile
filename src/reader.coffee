@@ -1,4 +1,4 @@
-{ReadableSearch} = require('elasticsearch-streams')
+ReadableSearch = require './readable-search'
 through2 = require 'through2'
 mixin    = require './mixin'
 

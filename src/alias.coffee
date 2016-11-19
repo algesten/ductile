@@ -5,7 +5,7 @@ flatten = (a) -> [].concat.apply [], a
 
 
 toBulk = -> through2.obj (doc, enc, callback) ->
-    this.push alias:{_index:doc._index, _name:doc._name}
+    this.push alias:doc
     callback()
 
 
@@ -27,8 +27,11 @@ module.exports = (client, _opts) ->
         .then (indices) ->
             Promise.all indices.map (index) -> client.indices.getAlias {index}
         .then (vs) ->
-            flatten flatten vs.map (v) ->
-                {_index, _name} for _name of aliases for _index, {aliases} of v
+            col = {}
+            vs.map (v) -> for i, {aliases} of v
+                for n of aliases
+                    (col[n] = (col[n] ? [])).push i
+            {_name, _index:(if i.length == 1 then i[0] else i)} for _name, i of col
 
     exec().then (docs) ->
         docs.forEach sink

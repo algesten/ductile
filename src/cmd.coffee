@@ -71,7 +71,8 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
             .on 'error', (err) ->
                 if err.code == 'EPIPE'
                     # broken pipe
-                    process.exit -1
+                    unless process.env.__TESTING == '1'
+                        process.exit -1
                 else
                     outerr 'EXPORT ERROR:', err
 
@@ -102,7 +103,8 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
                 outerr "Imported #{p.count}"
             .on 'error', (err) ->
                 outerr 'IMPORT ERROR:', err.message
-                process.exit -1
+                unless process.env.__TESTING == '1'
+                    process.exit -1
 
 
     .command
@@ -123,7 +125,8 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
             .on 'error', (err) ->
                 if err.code == 'EPIPE'
                     # broken pipe
-                    process.exit -1
+                    unless process.env.__TESTING == '1'
+                        process.exit -1
                 else
                     outerr 'EXPORT ERROR:', err
 
