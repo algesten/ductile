@@ -14,6 +14,8 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
         else
             stderr.write "\n"
 
+    errmsg = (err) -> err.body?.error?.reason ? err.message ? err
+
     log.redirect outerr, outerr
     log.level 'warn'
 
@@ -66,7 +68,7 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
             .on 'progress', (p) ->
                 outerr "Exported #{p.from}/#{p.total}"
             .on 'error', (err) ->
-                outerr 'EXPORT ERROR:', err.message
+                outerr 'EXPORT ERROR:', errmsg(err)
             .pipe(stdout)
             .on 'error', (err) ->
                 if err.code == 'EPIPE'
@@ -102,7 +104,7 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
             .on 'progress', (p) ->
                 outerr "Imported #{p.count}"
             .on 'error', (err) ->
-                outerr 'IMPORT ERROR:', err.message
+                outerr 'IMPORT ERROR:', errmsg(err)
                 unless process.env.__TESTING == '1'
                     process.exit -1
 
@@ -120,7 +122,7 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
             ductile(argv.url)
             .alias()
             .on 'error', (err) ->
-                outerr 'EXPORT ERROR:', err.message
+                outerr 'EXPORT ERROR:', errmsg(err)
             .pipe(stdout)
             .on 'error', (err) ->
                 if err.code == 'EPIPE'
@@ -144,7 +146,7 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
             ductile(argv.url)
             .mappings()
             .on 'error', (err) ->
-                outerr 'EXPORT ERROR:', err.message
+                outerr 'EXPORT ERROR:', errmsg(err)
             .pipe(stdout)
             .on 'error', (err) ->
                 if err.code == 'EPIPE'
@@ -168,7 +170,7 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
             ductile(argv.url)
             .settings()
             .on 'error', (err) ->
-                outerr 'EXPORT ERROR:', err.message
+                outerr 'EXPORT ERROR:', errmsg(err)
             .pipe(stdout)
             .on 'error', (err) ->
                 if err.code == 'EPIPE'

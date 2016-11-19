@@ -8,24 +8,26 @@ module.exports = (client) -> (bulk, callback) ->
                 delete t._settings.index.number_of_replicas
                 delete t._settings.index.number_of_shards
             putsettings = ->
-                (if t._settings.analysis
-                    close = -> client.indices.close index:t._index
-                    doclose = -> close().catch (err) ->
-                        if err.body?.error?.type == 'index_primary_shard_not_allocated_exception'
-                            doclose()
-                        else
-                            throw err
-                    doclose()
-                else
-                    Promise.resolve()
-                ).then ->
-                    client.indices.putSettings {index:t._index, body:t._settings}
-                .then (res) ->
+                attempt = ->
                     (if t._settings.analysis
-                        client.indices.open index:t._index
+                        client.indices.close index:t._index
                     else
                         Promise.resolve()
-                    ).then -> res
+                    ).then ->
+                        client.indices.putSettings {index:t._index, body:t._settings}
+                    .then (res) ->
+                        (if t._settings.analysis
+                            client.indices.open index:t._index
+                        else
+                            Promise.resolve()
+                        ).then -> res
+                    .catch (err) ->
+                        if err.body?.error?.type == 'index_primary_shard_not_allocated_exception'
+                            # this happens when the index is newly created
+                            attempt()
+                        else
+                            throw err
+                attempt()
             putsettings().catch (err) ->
                 if err.status == 404
                     opts = {index:t._index, body:{}}
