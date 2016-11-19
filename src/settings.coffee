@@ -3,7 +3,7 @@ mixin    = require './mixin'
 
 
 toBulk = -> through2.obj (doc, enc, callback) ->
-    this.push alias:doc
+    this.push settings:doc
     callback()
 
 
@@ -20,16 +20,16 @@ module.exports = (client, _opts) ->
     sink = instream.write.bind instream
 
     exec = ->
-        client.indices.getAlias(opts).then (v) ->
-            index for index, {aliases} of v
-        .then (indices) ->
-            Promise.all indices.map (index) -> client.indices.getAlias {index}
-        .then (vs) ->
-            col = {}
-            vs.map (v) -> for i, {aliases} of v
-                for n of aliases
-                    (col[n] = (col[n] ? [])).push i
-            {_name, _index:(if i.length == 1 then i[0] else i)} for _name, i of col
+        client.indices.getSettings(opts).then (v) ->
+            for index, {settings} of v
+                delete settings.index.uuid
+                delete settings.index.version
+                delete settings.index.creation_date
+                # analysis is inside index for some reason
+                if settings.index?.analysis
+                    settings.analysis = settings.index.analysis
+                    delete settings.index.analysis
+                {_index:index, _settings:settings}
 
     exec().then (docs) ->
         docs.forEach sink

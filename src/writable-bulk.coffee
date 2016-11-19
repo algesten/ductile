@@ -54,8 +54,8 @@ WritableBulk::_write = (chunk, enc, next) ->
         break
       i++
     if !@expectingPayload
-      if !chunk.hasOwnProperty('delete') and !chunk.hasOwnProperty('alias') and !chunk.hasOwnProperty('mapping')
-        @emit 'error', new Error('Unexpected chunk, not an ' + 'index/create/update/delete command and ' + 'not a document to index either')
+      if !chunk.hasOwnProperty('delete') and !chunk.hasOwnProperty('alias') and !chunk.hasOwnProperty('mapping') and !chunk.hasOwnProperty('settings')
+        @emit 'error', new Error('Unexpected chunk, not an ' + 'index/create/update/delete/alias/mapping/settings command and ' + 'not a document to index either')
         return next()
       @bulkCount++
   @bulk.push chunk

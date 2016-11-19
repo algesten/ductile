@@ -9,13 +9,12 @@ isTwoRow = (t) ->
     else
         t.index or t.update or t.create
 
-OPERS = ['index', 'update', 'create', 'delete', 'alias', 'mapping']
+OPERS = ['index', 'update', 'create', 'delete', 'alias', 'mapping', 'settings']
 
-# test if bulk contains any non-standard bulk operations (alias or mapping)
+# test if bulk contains any non-standard bulk operations (alias, mapping or settings)
 isNonStandard = (bulk) ->
-    return true for b in bulk when b.alias or b.mapping
+    return true for b in bulk when b.alias or b.mapping or b.settings
     false
-
 
 fromJson = ->
     saved = null # index are saved with next
@@ -58,6 +57,9 @@ transform = (operdelete, trans, index, type) ->
             else if t._oper == 'mapping'
                 oper.mapping =
                     {_index:(index ? t._index), _type:(type ? t._type), _mapping:t._mapping}
+            else if t._oper == 'settings'
+                oper.settings =
+                    {_index:(index ? t._index), _settings:t._settings}
             else
                 oper[t._oper] = {_id:t._id, _index:(index ? t._index), _type:(type ? t._type)}
             this.push oper
@@ -67,58 +69,29 @@ transform = (operdelete, trans, index, type) ->
 
 module.exports = (client, _opts, operdelete, trans, instream) ->
 
-    writeAlias = (bulk, callback) ->
-        bulk.reduce (p, c) ->
-            p.then -> pay = c.alias; client.indices.putAlias {name:pay._name, index:pay._index}
-        , Promise.resolve()
-        .then ->
-            callback null, {}
-        .catch (err) ->
-            callback err
-
-    writeMapping = (bulk, callback) ->
-        bulk.reduce (p, c) ->
-            p.then -> client.indices.putMapping {index:c._index, type:c._type, body:c._mapping}
-        , Promise.resolve()
-        .then ->
-            callback null, {}
-        .catch (err) ->
-            callback err
-
-    writeBulk = (bulk, callback) ->
-        opts = mixin _opts, body:bulk
-        client.bulk(opts).then (res) ->
-            if res?.errors
-                # { index: { _index: 'blah', _type: 'ttninjs', _id: 'sdltb459b78', status: 400,
-                #   error: { type: 'mapper_parsing_exception',
-                #            reason: 'Field name [sdl.archivedBy] cannot contain \'.\''
-                #            } } }
-                oper = OPERS.find (oper) -> res.items[0]?[oper]
-                reason = res.items[0]?[oper]?.error?.reason
-                if reason
-                    callback new Error(reason)
-                else
-                    callback res
-            else
-                callback null, res
-        .catch (err) ->
-            callback err
+    writeAlias    = require('./write-alias')    client
+    writeMapping  = require('./write-mapping')  client
+    writeSettings = require('./write-settings') client
+    writeBulk     = require('./write-bulk')     client, _opts
 
     bulkExec = (bulk, callback) ->
         # we try if any items are non-standard in which case
         # we must separate the bulk in different buckets
         # otherwise we just keep it intact
         if isNonStandard(bulk)
-            a = []; m = []; b = []
+            a = []; m = []; s = []; b = []
             for item in bulk
                 if item.alias
                     a.push item
                 else if item.mapping
                     m.push item
+                else if item.settings
+                    s.push item
                 else
                     b.push item
             writeAlias(a, callback) if a.length
             writeMapping(m, callback) if m.length
+            writeSettings(s, callback) if s.length
             writeBulk(b, callback) if b.length
         else
             writeBulk bulk, callback

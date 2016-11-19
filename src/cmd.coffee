@@ -36,7 +36,7 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
 
     .command
         command: 'export [options] <url>'
-        aliase:  'e'
+        alias:   'e'
         desc:    'Bulk export items',
         builder: (yargs) ->
             yargs
@@ -78,7 +78,7 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
 
     .command
         command: 'import [options] <url>'
-        aliase:  'i'
+        alias:   'i'
         desc:    'Bulk import items',
         builder: (yargs) ->
             yargs
@@ -109,7 +109,7 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
 
     .command
         command: 'alias <url>'
-        aliase:  'a'
+        alias:   'a'
         desc:    'Bulk export aliases',
         builder: (yargs) ->
             yargs
@@ -129,6 +129,55 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
                         process.exit -1
                 else
                     outerr 'EXPORT ERROR:', err
+
+
+    .command
+        command: 'mappings <url>'
+        alias:   'm'
+        desc:    'Bulk export mappings',
+        builder: (yargs) ->
+            yargs
+            .strict()
+            .usage('\nUsage: ductile mappings <url>')
+            .demand(1)
+        handler: (argv) ->
+            ductile(argv.url)
+            .mappings()
+            .on 'error', (err) ->
+                outerr 'EXPORT ERROR:', err.message
+            .pipe(stdout)
+            .on 'error', (err) ->
+                if err.code == 'EPIPE'
+                    # broken pipe
+                    unless process.env.__TESTING == '1'
+                        process.exit -1
+                else
+                    outerr 'EXPORT ERROR:', err
+
+
+    .command
+        command: 'settings <url>'
+        alias:   'm'
+        desc:    'Bulk export settings',
+        builder: (yargs) ->
+            yargs
+            .strict()
+            .usage('\nUsage: ductile settings <url>')
+            .demand(1)
+        handler: (argv) ->
+            ductile(argv.url)
+            .settings()
+            .on 'error', (err) ->
+                outerr 'EXPORT ERROR:', err.message
+            .pipe(stdout)
+            .on 'error', (err) ->
+                if err.code == 'EPIPE'
+                    # broken pipe
+                    unless process.env.__TESTING == '1'
+                        process.exit -1
+                else
+                    outerr 'EXPORT ERROR:', err
+
 
 
     .example 'ductile export http://localhost:9200/myindex'
