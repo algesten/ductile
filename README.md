@@ -105,7 +105,7 @@ $ ./ductile export -d http://devbox.local:9200/myindex
 #### With a query
 
 Queries are JSON formatted elasticsearch queries. The default query is a `match_all`.
-The query file is `require`, so it can also be expressed as `.js` or `.coffee`
+The query file is `require`, so it can also be expressed as `.js` or '.json'
 
 ```bash
 $ ./ductile export -q ./query.json http://devbox.local:9200/dist-sdl-20160314

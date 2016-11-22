@@ -24,7 +24,7 @@ jsonStream = -> through2.obj (chunk, enc, callback) ->
 
 module.exports = (client, _opts, operdelete, trans) ->
 
-    opts = mixin _opts, {scroll:'60s'}
+    opts = mixin _opts, {scroll:'60s', size:200}
 
     # need some kind of query
     if !opts.body and !opts.q
