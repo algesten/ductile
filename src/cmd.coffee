@@ -103,6 +103,7 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
             .writer(odelete, trans, stdin)
             .on 'progress', (p) ->
                 outerr "Imported #{p.count}"
+            .on 'info', outerr
             .on 'error', (err) ->
                 outerr 'IMPORT ERROR:', errmsg(err)
                 unless process.env.__TESTING == '1'

@@ -1,0 +1,4 @@
+{"index":{"_index":"myindex","_type":"mytype","_id":"id-first"}}
+{"body_text":"First. \nTest 123 "}
+{"index":{"_index":"myindex","_type":"mytype","_id":"id-second"}}
+{"body_text":"Second.Test 123 "}

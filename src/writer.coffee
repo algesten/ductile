@@ -7,7 +7,7 @@ isTwoRow = (t) ->
     if typeof t == 'string'
         t in ['index', 'update', 'create']
     else
-        t.index or t.update or t.create
+        t and (t.index or t.update or t.create)
 
 OPERS = ['index', 'update', 'create', 'delete', 'alias', 'mapping', 'settings']
 
@@ -16,17 +16,41 @@ isNonStandard = (bulk) ->
     return true for b in bulk when b.alias or b.mapping or b.settings
     false
 
-fromJson = ->
-    saved = null # index are saved with next
+# value passed down the pipe to clean the state
+CLEAN_PIPE = {clean:true}
+
+fromJson = (emit) ->
+    saved = null     # index are saved with next
+    find123 = false  # 123 is {
     through2.obj (line, enc, callback) ->
-        json = JSON.parse(line)
-        if saved != null
+        if find123
+            if line[0] isnt 123
+                return callback()
+            else
+                find123 = false
+        json = try
+            JSON.parse(line)
+        catch ex
+            if saved
+                {message} = ex
+                emit 'info', "Skipping record, JSON parse failed (#{message})
+                on line after:\n#{JSON.stringify(saved)}"
+                saved = null
+                find123 = true # skip data until we find the next { at a start of a line
+                null # null to json
+            else
+                throw ex
+        if json == null
+            # null is skipped, may be from catching an exception above
+            # we must clean the pipe
+            this.push CLEAN_PIPE
+        else if saved != null
             this.push saved
             this.push json
             saved = null
-        else if json.index
+        else if isTwoRow(json)
             saved = json
-        else
+        else if json
             this.push json
         callback()
 
@@ -37,7 +61,9 @@ toDoc = ->
         mixin head, _oper:opername, _source:source
     saved = null
     through2.obj (row, enc, callback) ->
-        if saved
+        if row == CLEAN_PIPE
+            saved = null
+        else if saved
             this.push d(saved, row)
             saved = null
         else
@@ -98,15 +124,20 @@ module.exports = (client, _opts, operdelete, trans, instream) ->
 
     count = 0
 
+    fromJsonS = fromJson (as...) -> stream.emit as...
+
     stream = instream
     .pipe byline.createStream() # ensure we get whole lines
-    .pipe fromJson()
+    .pipe fromJsonS
     .pipe toDoc()
     .pipe through2.obj (doc, enc, callback) ->
         count++
         this.push doc
         callback()
     .pipe transform(operdelete, trans, _opts.index, _opts.type)
+    .pipe through2.obj (doc, enc, callback) ->
+        this.push doc
+        callback()
     .pipe new WritableBulk (bulk, callback) ->
         stream.emit 'progress', {count}
         bulkExec(bulk, callback)
