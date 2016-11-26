@@ -181,6 +181,29 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
                 else
                     outerr 'EXPORT ERROR:', err
 
+    .command
+        command: 'template <url>'
+        alias:   't'
+        desc:    'Bulk export template',
+        builder: (yargs) ->
+            yargs
+            .strict()
+            .usage('\nUsage: ductile template <url>')
+            .demand(1)
+        handler: (argv) ->
+            ductile(argv.url)
+            .template()
+            .on 'error', (err) ->
+                outerr 'EXPORT ERROR:', errmsg(err)
+            .pipe(stdout)
+            .on 'error', (err) ->
+                if err.code == 'EPIPE'
+                    # broken pipe
+                    unless process.env.__TESTING == '1'
+                        process.exit -1
+                else
+                    outerr 'EXPORT ERROR:', err
+
 
 
     .example 'ductile export http://localhost:9200/myindex'

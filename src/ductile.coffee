@@ -4,6 +4,7 @@ reader        = require './reader'
 alias         = require './alias'
 mappings      = require './mappings'
 settings      = require './settings'
+template      = require './template'
 writer        = require './writer'
 queryToSearch = require './query-to-search'
 
@@ -30,6 +31,9 @@ module.exports = (url) ->
 
     mappings: ->
         mappings(client, {index:target.index, type:target.type})
+
+    template: ->
+        template(client, {name:target.index})
 
     writer: (operdelete, trans, instream) ->
         writer(client, {index:target.index, type:target.type}, operdelete, trans, instream)

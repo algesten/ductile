@@ -9,11 +9,11 @@ isTwoRow = (t) ->
     else
         t and (t.index or t.update or t.create)
 
-OPERS = ['index', 'update', 'create', 'delete', 'alias', 'mapping', 'settings']
+OPERS = ['index', 'update', 'create', 'delete', 'alias', 'mapping', 'settings', 'template']
 
 # test if bulk contains any non-standard bulk operations (alias, mapping or settings)
 isNonStandard = (bulk) ->
-    return true for b in bulk when b.alias or b.mapping or b.settings
+    return true for b in bulk when b.alias or b.mapping or b.settings or b.template
     false
 
 # value passed down the pipe to clean the state
@@ -86,6 +86,10 @@ transform = (operdelete, trans, index, type) ->
             else if t._oper == 'settings'
                 oper.settings =
                     {_index:(index ? t._index), _settings:t._settings}
+            else if t._oper == 'template'
+                # name is not overridable by the url
+                oper.template =
+                    {_name:t._name, _template:t._template}
             else
                 oper[t._oper] = {_id:t._id, _index:(index ? t._index), _type:(type ? t._type)}
             this.push oper
@@ -98,6 +102,7 @@ module.exports = (client, _opts, operdelete, trans, instream) ->
     writeAlias    = require('./write-alias')    client
     writeMapping  = require('./write-mapping')  client
     writeSettings = require('./write-settings') client
+    writeTemplate = require('./write-template') client
     writeBulk     = require('./write-bulk')     client, _opts
 
     bulkExec = (bulk, callback) ->
@@ -105,7 +110,7 @@ module.exports = (client, _opts, operdelete, trans, instream) ->
         # we must separate the bulk in different buckets
         # otherwise we just keep it intact
         if isNonStandard(bulk)
-            a = []; m = []; s = []; b = []
+            a = []; m = []; s = []; t = []; b = []
             for item in bulk
                 if item.alias
                     a.push item
@@ -113,11 +118,14 @@ module.exports = (client, _opts, operdelete, trans, instream) ->
                     m.push item
                 else if item.settings
                     s.push item
+                else if item.template
+                    t.push item
                 else
                     b.push item
             writeAlias(a, callback) if a.length
             writeMapping(m, callback) if m.length
             writeSettings(s, callback) if s.length
+            writeTemplate(t, callback) if t.length
             writeBulk(b, callback) if b.length
         else
             writeBulk bulk, callback
