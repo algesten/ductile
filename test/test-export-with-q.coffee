@@ -32,3 +32,4 @@ describe 'export', ->
                         body:query:fantastic_panda:true
                         index: 'myindex'
                         scroll: '60s'
+                        size: 200

@@ -35,6 +35,7 @@ describe 'export', ->
                 assert.deepEqual es().search.args[0][0],
                     body:query:match_all:{}
                     scroll: '60s'
+                    size: 200
 
     describe 'with index in the url', ->
         it 'exports to bulk with index', ->
@@ -44,6 +45,7 @@ describe 'export', ->
                     body:query:match_all:{}
                     index: 'panda'
                     scroll: '60s'
+                    size: 200
 
     describe 'with index/type in the url', ->
         it 'exports to bulk with index/type', ->
@@ -54,6 +56,7 @@ describe 'export', ->
                     index: 'panda'
                     type: 'cub'
                     scroll: '60s'
+                    size: 200
 
     describe 'with a q= in the url', ->
         it 'includes q field in the body', ->
@@ -64,3 +67,4 @@ describe 'export', ->
                     index: 'panda'
                     type: 'cub'
                     scroll: '60s'
+                    size: 200
