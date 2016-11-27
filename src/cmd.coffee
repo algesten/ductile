@@ -37,9 +37,41 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
     .wrap(null)
 
     .command
+        command: 'import [options] <url>'
+        alias:   'i'
+        desc:    'Bulk import items (anything exported)',
+        builder: (yargs) ->
+            yargs
+            .strict()
+            .usage '\nUsage: ductile import [options] <url>'
+            .option 'd',
+                alias:    'delete'
+                default:  false
+                describe: 'change incoming index operations to delete'
+                type:     'boolean'
+            .option 't',
+                alias:    'transform'
+                describe: 'file with transform function'
+                type:     'string'
+            .demand(1)
+        handler: (argv) ->
+            odelete = argv["delete"]
+            trans = if argv.t then readfile(argv.t) else (v) -> v
+            ductile(argv.url)
+            .writer(odelete, trans, stdin)
+            .on 'progress', (p) ->
+                outerr "Imported #{p.count}"
+            .on 'info', outerr
+            .on 'error', (err) ->
+                outerr 'IMPORT ERROR:', errmsg(err)
+                unless process.env.__TESTING == '1'
+                    process.exit -1
+
+
+    .command
         command: 'export [options] <url>'
         alias:   'e'
-        desc:    'Bulk export items',
+        desc:    'Bulk export documents',
         builder: (yargs) ->
             yargs
             .strict()
@@ -77,38 +109,6 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
                         process.exit -1
                 else
                     outerr 'EXPORT ERROR:', err
-
-    .command
-        command: 'import [options] <url>'
-        alias:   'i'
-        desc:    'Bulk import items',
-        builder: (yargs) ->
-            yargs
-            .strict()
-            .usage '\nUsage: ductile import [options] <url>'
-            .option 'd',
-                alias:    'delete'
-                default:  false
-                describe: 'change incoming index operations to delete'
-                type:     'boolean'
-            .option 't',
-                alias:    'transform'
-                describe: 'file with transform function'
-                type:     'string'
-            .demand(1)
-        handler: (argv) ->
-            odelete = argv["delete"]
-            trans = if argv.t then readfile(argv.t) else (v) -> v
-            ductile(argv.url)
-            .writer(odelete, trans, stdin)
-            .on 'progress', (p) ->
-                outerr "Imported #{p.count}"
-            .on 'info', outerr
-            .on 'error', (err) ->
-                outerr 'IMPORT ERROR:', errmsg(err)
-                unless process.env.__TESTING == '1'
-                    process.exit -1
-
 
     .command
         command: 'alias <url>'
