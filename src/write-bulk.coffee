@@ -1,5 +1,7 @@
 mixin    = require './mixin'
 
+OPERS = require './opers'
+
 module.exports = (client, _opts) -> (bulk, callback) ->
     opts = mixin _opts, body:bulk
     client.bulk(opts).then (res) ->

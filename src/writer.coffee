@@ -9,7 +9,7 @@ isTwoRow = (t) ->
     else
         t and (t.index or t.update or t.create)
 
-OPERS = ['index', 'update', 'create', 'delete', 'alias', 'mapping', 'settings', 'template']
+OPERS = require './opers'
 
 # test if bulk contains any non-standard bulk operations (alias, mapping or settings)
 isNonStandard = (bulk) ->
