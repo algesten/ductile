@@ -8,7 +8,7 @@ toBulk = (operdelete) -> through2.obj (doc, enc, callback) ->
         this.push delete:idx
     else
         this.push index:idx
-        this.push doc._source
+        this.push doc._source ? {}
     callback()
 
 transform = (fn) -> through2.obj (doc, enc, callback) ->
