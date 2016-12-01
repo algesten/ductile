@@ -122,11 +122,20 @@ module.exports = (client, _opts, operdelete, trans, instream) ->
                     t.push item
                 else
                     b.push item
-            writeAlias(a, callback) if a.length
-            writeMapping(m, callback) if m.length
-            writeSettings(s, callback) if s.length
-            writeTemplate(t, callback) if t.length
-            writeBulk(b, callback) if b.length
+            goterr = null
+            anyerr = (err) -> goterr = err
+            Promise.resolve().then ->
+                writeTemplate(t, anyerr) if t.length
+            .then ->
+                writeSettings(s, anyerr) if s.length
+            .then ->
+                writeMapping(m, anyerr) if m.length
+            .then ->
+                writeBulk(b, anyerr) if b.length
+            .then ->
+                writeAlias(a, anyerr) if a.length
+            .then ->
+                if goterr then callback(goterr) else callback(null, {})
         else
             writeBulk bulk, callback
 
