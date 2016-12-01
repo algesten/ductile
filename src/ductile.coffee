@@ -8,6 +8,8 @@ template      = require './template'
 writer        = require './writer'
 queryToSearch = require './query-to-search'
 
+wait = -> new Promise (rs) -> setTimeout (->rs()), 1000
+
 module.exports = (url) ->
 
     target = parse(url)
@@ -22,6 +24,18 @@ module.exports = (url) ->
         msearch = mixin search, lsearch, {index:target.index, type:target.type}
 
         reader(client, msearch, operdelete, trans)
+
+    wait: (wantwait) ->
+        _self = this
+        return Promise.resolve(_self) unless wantwait
+        dowait = -> wait().then ->
+            client.ping()
+        .then ->
+            _self
+        .catch (err) ->
+            # not up, try again
+            dowait()
+        dowait()
 
     alias: ->
         alias(client, {index:target.index})

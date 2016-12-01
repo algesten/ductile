@@ -53,19 +53,23 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
                 alias:    'transform'
                 describe: 'file with transform function'
                 type:     'string'
+            .option 'w',
+                alias:    'wait'
+                describe: 'wait until elasticsearch becomes available'
+                type:     'boolean'
             .demand(1)
         handler: (argv) ->
             odelete = argv["delete"]
             trans = if argv.t then readfile(argv.t) else (v) -> v
-            ductile(argv.url)
-            .writer(odelete, trans, stdin)
-            .on 'progress', (p) ->
-                outerr "Imported #{p.count}"
-            .on 'info', outerr
-            .on 'error', (err) ->
-                outerr 'IMPORT ERROR:', errmsg(err)
-                unless process.env.__TESTING == '1'
-                    process.exit -1
+            ductile(argv.url).wait(argv.w).then (duct) ->
+                duct.writer(odelete, trans, stdin)
+                .on 'progress', (p) ->
+                    outerr "Imported #{p.count}"
+                .on 'info', outerr
+                .on 'error', (err) ->
+                    outerr 'IMPORT ERROR:', errmsg(err)
+                    unless process.env.__TESTING == '1'
+                        process.exit -1
 
 
     .command
