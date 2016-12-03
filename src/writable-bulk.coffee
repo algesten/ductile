@@ -71,14 +71,14 @@ WritableBulk::_flushBulk = (callback) ->
   @bulkExec @bulk, (e, resp) ->
     if e
       self.emit 'error', e
-    if resp.errors and resp.items
-      i = 0
-      while i < resp.items.length
-        bulkItemResp = resp.items[i]
-        key = Object.keys(bulkItemResp)[0]
-        if bulkItemResp[key].error
-          self.emit 'error', new Error(bulkItemResp[key].error)
-        i++
+    # if resp.errors and resp.items
+    #   i = 0
+    #   while i < resp.items.length
+    #     bulkItemResp = resp.items[i]
+    #     key = Object.keys(bulkItemResp)[0]
+    #     if bulkItemResp[key].error
+    #       self.emit 'error', new Error(bulkItemResp[key].error)
+    #     i++
     self.bulk = []
     self.bulkCount = 0
     self.expectingPayload = false

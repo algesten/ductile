@@ -1,5 +1,6 @@
 ductile = require './ductile'
 {join, sep} = require 'path'
+{inspect} = require 'util'
 log  = require 'bog'
 
 module.exports = (stdin, stdout, stderr) -> (_argv)  ->
@@ -14,7 +15,12 @@ module.exports = (stdin, stdout, stderr) -> (_argv)  ->
         else
             stderr.write "\n"
 
-    errmsg = (err) -> err.body?.error?.reason ? err.message ? err
+    errmsg = (err) ->
+        msg = err.body?.error?.reason ? err.message ? err
+        if typeof msg == 'string'
+            msg
+        else
+            inspect msg
 
     log.redirect outerr, outerr
     log.level 'warn'

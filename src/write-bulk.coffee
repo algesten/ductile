@@ -2,7 +2,7 @@ mixin    = require './mixin'
 
 OPERS = require './opers'
 
-module.exports = (client, _opts) -> (bulk, callback) ->
+module.exports = (client, _opts) -> (bulk, emit, callback) ->
     opts = mixin _opts, body:bulk
     client.bulk(opts).then (res) ->
         if res?.errors
@@ -10,12 +10,16 @@ module.exports = (client, _opts) -> (bulk, callback) ->
             #   error: { type: 'mapper_parsing_exception',
             #            reason: 'Field name [sdl.archivedBy] cannot contain \'.\''
             #            } } }
-            oper = OPERS.find (oper) -> res.items[0]?[oper]
-            reason = res.items[0]?[oper]?.error?.reason
-            if reason
-                callback new Error(reason)
-            else
-                callback res
+            (res.items ? []).forEach (i) ->
+                oper = OPERS.find (oper) -> i?[oper]
+                rec = i[oper]
+                if rec?.error
+                    {reason} = rec.error
+                    if rec._index and rec._type and rec._id
+                        emit 'info', "Skipping (#{rec._index}/#{rec._type}/#{rec._id}): #{reason}"
+                    else
+                        emit 'info', "Skipping record: #{reason}"
+            callback null, res
         else
             callback null, res
     .catch (err) ->

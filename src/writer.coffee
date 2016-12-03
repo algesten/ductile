@@ -105,7 +105,10 @@ module.exports = (client, _opts, operdelete, trans, instream) ->
     writeTemplate = require('./write-template') client
     writeBulk     = require('./write-bulk')     client, _opts
 
-    bulkExec = (bulk, callback) ->
+    bulkExec = (bulk, stream, callback) ->
+
+        emit = stream.emit.bind(stream)
+
         # we try if any items are non-standard in which case
         # we must separate the bulk in different buckets
         # otherwise we just keep it intact
@@ -131,13 +134,13 @@ module.exports = (client, _opts, operdelete, trans, instream) ->
             .then ->
                 writeMapping(m, anyerr) if m.length
             .then ->
-                writeBulk(b, anyerr) if b.length
+                writeBulk(b, emit, anyerr) if b.length
             .then ->
                 writeAlias(a, anyerr) if a.length
             .then ->
                 if goterr then callback(goterr) else callback(null, {})
         else
-            writeBulk bulk, callback
+            writeBulk bulk, emit, callback
 
     count = 0
 
@@ -157,6 +160,6 @@ module.exports = (client, _opts, operdelete, trans, instream) ->
         callback()
     .pipe new WritableBulk (bulk, callback) ->
         stream.emit 'progress', {count}
-        bulkExec(bulk, callback)
+        bulkExec(bulk, stream, callback)
 
     stream
