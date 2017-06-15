@@ -40,7 +40,7 @@ module.exports = (client, _opts, operdelete, trans) ->
         scrollId = null
         (from, callback) ->
             if scrollId
-                client.scroll({scrollId, scroll:'60s'}, callback)
+                client.scroll({scrollId, scroll:'1m', body:{}}, callback)
             else
                 client.search opts, (err, res) ->
                     scrollId = res?._scroll_id
